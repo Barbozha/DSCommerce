@@ -1,8 +1,10 @@
 package com.barbozha.dscommerce.entities;
 
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.Objects;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -10,11 +12,14 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "tb_order")
-public class Order {
+public class Order implements Serializable{
+
+	private static final long serialVersionUID = 1L;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,16 +32,19 @@ public class Order {
 	@ManyToOne
 	@JoinColumn(name = "client_id") // chave estrangeira
 	private User client;
+	
+	@OneToOne(mappedBy = "order", cascade = CascadeType.ALL)// Mapeamento para o acesso da entidade Payment.
+	private Payment payment;
 
 	public Order() {
 	}
 
-	public Order(Long id, Instant moment, OrderStatus status, User client) {
-		super();
+	public Order(Long id, Instant moment, OrderStatus status, User client, Payment payment) {
 		this.id = id;
 		this.moment = moment;
 		this.status = status;
 		this.client = client;
+		this.payment = payment;
 	}
 
 	public Long getId() {
@@ -69,6 +77,14 @@ public class Order {
 
 	public void setClient(User client) {
 		this.client = client;
+	}
+	
+	public Payment getPayment() {
+		return payment;
+	}
+
+	public void setPayment(Payment payment) {
+		this.payment = payment;
 	}
 
 	@Override
