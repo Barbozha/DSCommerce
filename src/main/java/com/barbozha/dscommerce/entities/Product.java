@@ -2,6 +2,7 @@ package com.barbozha.dscommerce.entities;
 
 import java.io.Serializable;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -95,6 +96,15 @@ public class Product implements Serializable{
 	
 	public Set<Category> getCategories() {
 		return categories;
+	}
+	
+	public Set<OrderItem> getItems() {
+		return items;
+	}
+	// Para cada items da minha lista <OrderItem> acima e para cada elemento x do OrderItem
+	// eu pego x.getOrder para pegar somente o Order que está dentro do OrderItem.
+	public List<Order> getOrders(){
+		return items.stream().map(x -> x.getOrder()).toList();
 	}
 
 	@Override

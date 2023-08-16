@@ -3,6 +3,7 @@ package com.barbozha.dscommerce.entities;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -92,6 +93,16 @@ public class Order implements Serializable{
 
 	public void setPayment(Payment payment) {
 		this.payment = payment;
+	}
+	
+	public Set<OrderItem> getItems() {
+		return items;
+	}
+
+	// Os items do método acima faço o stream map para ser convertidos para o product
+	// Para pegar somente o produto associado a ele, construo uma nova lista de product
+	public List<Product> getProducts() {
+		return items.stream().map(x -> x.getProduct()).toList();
 	}
 
 	@Override
