@@ -2,6 +2,7 @@ package com.barbozha.dscommerce.entities;
 
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.Objects;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -17,22 +18,24 @@ import jakarta.persistence.Table;
 public class Payment implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	
+
 	@Column(columnDefinition = "TIMESTAMP WITHOUT TIME ZONE") // Horário UTC.
 	private Instant moment;
 
 	@OneToOne
-	@MapsId 
-	/* A anotação para este tipo de relacionamento é MapsId
-	Para o JPA o id desta entidade SERÁ A CHAVE PRIMÁRIA LÁ NA TABELA (tb_payment)
-	Isto porque foi mapeado uma REFERÊNCIA para ORDER(Pedido)do tipo (@OneToOne)
-	e também para MAPEAR OS Ids(@MapsId)
-	Na tabela (tb_payment) terá o campo ORDER_ID como chave primária por CONVENSÃO DA JPA.
-	O pedido(Order) de número 5 terá ORDER_ID da tabela tb_payment de numero 5 também. */
+	@MapsId
+	/*
+	 * A anotação para este tipo de relacionamento é MapsId Para o JPA o id desta
+	 * entidade SERÁ A CHAVE PRIMÁRIA LÁ NA TABELA (tb_payment) Isto porque foi
+	 * mapeado uma REFERÊNCIA para ORDER(Pedido)do tipo (@OneToOne) e também para
+	 * MAPEAR OS Ids(@MapsId) Na tabela (tb_payment) terá o campo ORDER_ID como
+	 * chave primária por CONVENSÃO DA JPA. O pedido(Order) de número 5 terá
+	 * ORDER_ID da tabela tb_payment de numero 5 também.
+	 */
 	private Order order;
 
 	public Payment() {
@@ -67,6 +70,23 @@ public class Payment implements Serializable {
 
 	public void setOrder(Order order) {
 		this.order = order;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(id);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Payment other = (Payment) obj;
+		return Objects.equals(id, other.id);
 	}
 
 }
