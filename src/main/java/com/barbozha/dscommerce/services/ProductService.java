@@ -26,9 +26,22 @@ public class ProductService {
 	@Transactional(readOnly = true)
 	//import org.springframework.data.domain.Pageable;
 	//import org.springframework.data.domain.Page;
-	//Será paginada os resultos
+	//Será paginada os resultados
 	public Page<ProductDTO> findAll(Pageable pageable) {
 		Page<Product> prod = productRepository.findAll(pageable);
 		return prod.map(x -> new ProductDTO(x));
 	}
+	
+	@Transactional
+	public ProductDTO insert(ProductDTO dto) {
+		Product entity = new Product();
+		entity.setName(dto.getName());
+		entity.setDescription(dto.getDescription());
+		entity.setPrice(dto.getPrice());
+		entity.setImgUrl(dto.getImgUrl());
+		
+		entity = productRepository.save(entity);
+		return new ProductDTO(entity);
+	}
+	
 }
