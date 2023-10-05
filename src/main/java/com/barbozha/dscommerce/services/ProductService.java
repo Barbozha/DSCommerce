@@ -1,15 +1,20 @@
 package com.barbozha.dscommerce.services;
 
-import org.hibernate.ResourceClosedException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.barbozha.dscommerce.dto.ProductDTO;
 import com.barbozha.dscommerce.entities.Product;
 import com.barbozha.dscommerce.repositories.ProductRepository;
+import com.barbozha.dscommerce.services.exceptions.DatabaseException;
+import com.barbozha.dscommerce.services.exceptions.ResourceNotFoundException;
+
+import jakarta.persistence.EntityNotFoundException;
 
 @Service
 
@@ -21,7 +26,7 @@ public class ProductService {
 	@Transactional(readOnly = true) // para não dar lock no banco de dados
 	public ProductDTO findById(Long id) {
 		Product product = productRepository.findById(id).orElseThrow(
-				() -> new ResourceClosedException("Recurso não encontrado"));
+				() -> new ResourceNotFoundException("Recurso Não Encontrado"));
 		return new ProductDTO(product);
 	}
 
@@ -44,15 +49,29 @@ public class ProductService {
 
 	@Transactional
 	public ProductDTO update(Long id, ProductDTO dto) {
-		Product entity = productRepository.getReferenceById(id);
-		copyDtoToEntity(dto, entity);
-		entity = productRepository.save(entity);
-		return new ProductDTO(entity);
+		try {
+			Product entity = productRepository.getReferenceById(id);
+			copyDtoToEntity(dto, entity);
+			entity = productRepository.save(entity);
+			return new ProductDTO(entity);
+		}catch(EntityNotFoundException e) {
+			throw new ResourceNotFoundException("Recurso Não Encontrado");
+		}
+		
 	}
 
-	@Transactional
+	@Transactional(propagation = Propagation.SUPPORTS)
 	public void delete(Long id) {
-		productRepository.deleteById(id);
+		if(!productRepository.existsById(id)) {
+			throw new ResourceNotFoundException("Recurso Não ENcontrado");
+		}
+		try {
+			productRepository.deleteById(id);
+		}catch(DataIntegrityViolationException e) {
+			throw new DatabaseException("Falha de Integridade Referencial");
+		}
+		
+
 	}
 
 	private void copyDtoToEntity(ProductDTO dto, Product entity) {
